@@ -151,6 +151,7 @@ $$E_{Spikingformer}^{neuro}=E_{A C} \times\left(\sum_{i=2}^N S O P_{{Conv} }^i+\
 ## Acknowledgement & Contact Information
 Related project: [spikformer](https://github.com/ZK-Zhou/spikformer), [pytorch-image-models](https://github.com/huggingface/pytorch-image-models), [CML](https://github.com/zhouchenlin2096/Spikingformer-CML), [spikingjelly](https://github.com/fangwei123456/spikingjelly).
 
-For help or issues using this git, please submit a GitHub issue.
+The code of Spikingformer<sup>†</sup>: [link](https://github.com/zhouchenlin2096/Spikingformer-CML)
+Spikingformer-8-768 on Google drive: [link](https://drive.google.com/drive/folders/1DE4qm-9vKNwDfJAdYYrDdPFc7_cGo2nK?usp=drive_link)
+Spikingformer-4-384-400E on Google drive: [link](https://drive.google.com/drive/folders/1LES30-AsGM02xkWftpUeh_WudhwDZzzW?usp=drive_link)
 
-For other communications related to this git, please contact zhouchl@pcl.ac.cn or zhouchenlin19@mails.ucas.ac.cn.
