@@ -124,7 +124,7 @@ def main():
     device = torch.device(args.device)
 
     net = build_model(cfg).to(device)
-    checkpoint = torch.load(Path(args.checkpoint), map_location=device)
+    checkpoint = torch.load(Path(args.checkpoint), map_location=device, weights_only=False)
     state_dict = extract_state_dict(checkpoint)
     missing, unexpected = net.load_state_dict(state_dict, strict=False)
     if missing:
