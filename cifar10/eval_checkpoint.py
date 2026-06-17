@@ -6,12 +6,11 @@ import torch
 import torch.nn as nn
 import yaml
 from spikingjelly.clock_driven import functional
-from timm.models import create_model
 from timm.utils import accuracy
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-import model  # noqa: F401 registers Spikingformer with timm
+import model as spikingformer_model
 
 
 def parse_args():
@@ -49,12 +48,9 @@ def extract_state_dict(checkpoint):
 
 
 def build_model(cfg):
-    return create_model(
-        "Spikingformer",
-        pretrained=False,
+    return spikingformer_model.vit_snn(
         drop_rate=0.0,
         drop_path_rate=0.2,
-        drop_block_rate=None,
         img_size_h=cfg["img_size"],
         img_size_w=cfg["img_size"],
         patch_size=cfg["patch_size"],
