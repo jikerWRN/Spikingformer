@@ -325,6 +325,10 @@ parser.add_argument('--experiment', default='', type=str, metavar='NAME',
                     help='name of train experiment, name of sub-folder for output')
 parser.add_argument('--eval-metric', default='top1', type=str, metavar='EVAL_METRIC',
                     help='Best metric (default: "top1"')
+parser.add_argument('--iter-eval-start-epoch', default=-1, type=int, metavar='N',
+                    help='After this epoch, switch from epoch eval to iteration eval. Disabled if < 0.')
+parser.add_argument('--iter-eval-interval', default=0, type=int, metavar='N',
+                    help='Run eval every N training iterations after --iter-eval-start-epoch. Disabled if <= 0.')
 parser.add_argument('--tta', type=int, default=0, metavar='N',
                     help='Test/inference time augmentation (oversampling) factor. 0=None (default: 0)')
 parser.add_argument("--local_rank", default=0, type=int)
@@ -634,49 +638,79 @@ def main():
         with open(os.path.join(output_dir, 'args.yaml'), 'w') as f:
             f.write(args_text)
 
+    eval_state = {'last_metrics': None}
+
+    def run_eval(epoch, update=None, train_metrics=None, log_suffix=''):
+        nonlocal best_metric, best_epoch
+
+        if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
+            if args.local_rank == 0:
+                _logger.info("Distributing BatchNorm running means and vars")
+            distribute_bn(model, args.world_size, args.dist_bn == 'reduce')
+
+        eval_metrics = validate(model, loader_eval, validate_loss_fn, args, amp_autocast=amp_autocast,
+                                log_suffix=log_suffix)
+
+        if model_ema is not None and not args.model_ema_force_cpu:
+            if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
+                distribute_bn(model_ema, args.world_size, args.dist_bn == 'reduce')
+            eval_metrics = validate(
+                model_ema.module, loader_eval, validate_loss_fn, args, amp_autocast=amp_autocast,
+                log_suffix=' (EMA)' + log_suffix)
+
+        eval_state['last_metrics'] = eval_metrics
+
+        if output_dir is not None:
+            update_summary(
+                update if update is not None else epoch,
+                train_metrics or OrderedDict([('loss', None)]),
+                eval_metrics,
+                os.path.join(output_dir, 'summary.csv'),
+                write_header=best_metric is None,
+                log_wandb=False)
+
+            save_metric = eval_metrics[eval_metric]
+            if is_better_metric(save_metric, best_metric, decreasing=decreasing):
+                best_metric = save_metric
+                best_epoch = epoch
+                save_best_checkpoint(
+                    model, optimizer, args, epoch, save_metric, output_dir,
+                    model_ema=model_ema, loss_scaler=loss_scaler)
+            _logger.info('*** Best metric: {0} (epoch {1})'.format(best_metric, best_epoch))
+
+        if args.log_wandb and has_wandb and args.rank == 0:
+            wandb_data = {f'eval/{k}': v for k, v in eval_metrics.items()}
+            wandb_data['epoch'] = epoch
+            if update is not None:
+                wandb_data['train/update'] = update
+            if train_metrics is not None:
+                for k, v in train_metrics.items():
+                    if v is not None:
+                        wandb_data[f'train/{k}'] = v
+            wandb.log(wandb_data, step=update)
+
+        return eval_metrics
+
     try:
         for epoch in range(start_epoch, num_epochs):
             if args.distributed and hasattr(loader_train.sampler, 'set_epoch'):
                 loader_train.sampler.set_epoch(epoch)
 
+            iter_eval_enabled = args.iter_eval_interval > 0 and epoch > args.iter_eval_start_epoch
+
             train_metrics = train_one_epoch(
                 epoch, model, loader_train, optimizer, train_loss_fn, args,
                 lr_scheduler=lr_scheduler, saver=saver, output_dir=output_dir,
-                amp_autocast=amp_autocast, loss_scaler=loss_scaler, model_ema=model_ema, mixup_fn=mixup_fn)
+                amp_autocast=amp_autocast, loss_scaler=loss_scaler, model_ema=model_ema, mixup_fn=mixup_fn,
+                eval_callback=run_eval if iter_eval_enabled else None)
 
-            if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
-                if args.local_rank == 0:
-                    _logger.info("Distributing BatchNorm running means and vars")
-                distribute_bn(model, args.world_size, args.dist_bn == 'reduce')
-
-            eval_metrics = validate(model, loader_eval, validate_loss_fn, args, amp_autocast=amp_autocast)
-
-            if model_ema is not None and not args.model_ema_force_cpu:
-                if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
-                    distribute_bn(model_ema, args.world_size, args.dist_bn == 'reduce')
-                ema_eval_metrics = validate(
-                    model_ema.module, loader_eval, validate_loss_fn, args, amp_autocast=amp_autocast,
-                    log_suffix=' (EMA)')
-                eval_metrics = ema_eval_metrics
+            if not iter_eval_enabled:
+                run_eval(epoch, train_metrics=train_metrics)
 
             if lr_scheduler is not None:
                 # step LR for next epoch
-                lr_scheduler.step(epoch + 1, eval_metrics[eval_metric])
-
-            if output_dir is not None:
-                update_summary(
-                    epoch, train_metrics, eval_metrics, os.path.join(output_dir, 'summary.csv'),
-                    write_header=best_metric is None, log_wandb=args.log_wandb and has_wandb)
-
-            if output_dir is not None:
-                save_metric = eval_metrics[eval_metric]
-                if is_better_metric(save_metric, best_metric, decreasing=decreasing):
-                    best_metric = save_metric
-                    best_epoch = epoch
-                    save_best_checkpoint(
-                        model, optimizer, args, epoch, save_metric, output_dir,
-                        model_ema=model_ema, loss_scaler=loss_scaler)
-                _logger.info('*** Best metric: {0} (epoch {1})'.format(best_metric, best_epoch))
+                lr_scheduler.step(epoch + 1, eval_state['last_metrics'][eval_metric]
+                                  if eval_state['last_metrics'] is not None else None)
 
     except KeyboardInterrupt:
         pass
@@ -687,7 +721,7 @@ def main():
 def train_one_epoch(
         epoch, model, loader, optimizer, loss_fn, args,
         lr_scheduler=None, saver=None, output_dir=None, amp_autocast=suppress,
-        loss_scaler=None, model_ema=None, mixup_fn=None):
+        loss_scaler=None, model_ema=None, mixup_fn=None, eval_callback=None):
     if args.mixup_off_epoch and epoch >= args.mixup_off_epoch:
         if args.prefetcher and loader.mixup_enabled:
             loader.mixup_enabled = False
@@ -784,6 +818,15 @@ def train_one_epoch(
 
         if lr_scheduler is not None:
             lr_scheduler.step_update(num_updates=num_updates, metric=losses_m.avg)
+
+        if eval_callback is not None and num_updates % args.iter_eval_interval == 0:
+            eval_callback(
+                epoch,
+                update=num_updates,
+                train_metrics=OrderedDict([('loss', losses_m.avg)]),
+                log_suffix=' (iter {})'.format(num_updates))
+            model.train()
+            end = time.time()
 
         end = time.time()
         # end for
