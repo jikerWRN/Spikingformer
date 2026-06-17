@@ -265,5 +265,7 @@ if __name__ == '__main__':
     # print the output
     model.eval()
     y = model(input)
+
+    print(model)
     print(y.shape)
     print('Test Good!')
