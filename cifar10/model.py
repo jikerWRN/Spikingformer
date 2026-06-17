@@ -233,6 +233,8 @@ class vit_snn(nn.Module):
 
 @register_model
 def Spikingformer(pretrained=False, **kwargs):
+    kwargs.pop('pretrained_cfg_overlay', None)
+    kwargs.pop('drop_block_rate', None)
     model = vit_snn(
         **kwargs
     )
