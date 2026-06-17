@@ -47,14 +47,15 @@ class SpikingSelfAttention(nn.Module):
         self.num_heads = num_heads
 
         self.proj_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
+
         self.q_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.q_bn = nn.BatchNorm1d(dim)
-
         self.q_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
+
         self.k_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.k_bn = nn.BatchNorm1d(dim)
-
         self.k_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
+        
         self.v_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.v_bn = nn.BatchNorm1d(dim)
         self.v_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
