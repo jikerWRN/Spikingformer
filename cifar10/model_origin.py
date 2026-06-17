@@ -14,11 +14,11 @@ class MLP(nn.Module):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
-        self.mlp1_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.mlp1_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.mlp1_conv = nn.Conv2d(in_features, hidden_features, kernel_size=1, stride=1)
         self.mlp1_bn = nn.BatchNorm2d(hidden_features)
 
-        self.mlp2_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.mlp2_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.mlp2_conv = nn.Conv2d(hidden_features, out_features, kernel_size=1, stride=1)
         self.mlp2_bn = nn.BatchNorm2d(out_features)
 
@@ -46,21 +46,21 @@ class SpikingSelfAttention(nn.Module):
         self.dim = dim
         self.num_heads = num_heads
 
-        self.proj_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.proj_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
 
         self.q_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.q_bn = nn.BatchNorm1d(dim)
-        self.q_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.q_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
 
         self.k_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.k_bn = nn.BatchNorm1d(dim)
-        self.k_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.k_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         
         self.v_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1, bias=False)
         self.v_bn = nn.BatchNorm1d(dim)
-        self.v_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.v_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
 
-        self.attn_lif = MultiStepLIFNode(tau=2.0, v_threshold=0.5, detach_reset=True, backend='torch')
+        self.attn_lif = MultiStepLIFNode(tau=2.0, v_threshold=0.5, detach_reset=True, backend='cupy')
         self.proj_conv = nn.Conv1d(dim, dim, kernel_size=1, stride=1)
         self.proj_bn = nn.BatchNorm1d(dim)
 
@@ -128,20 +128,20 @@ class SpikingTokenizer(nn.Module):
         self.block0_conv = nn.Conv2d(in_channels, embed_dims // 8, kernel_size=3, stride=1, padding=1, bias=False)
         self.block0_bn = nn.BatchNorm2d(embed_dims // 8)
 
-        self.block1_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.block1_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.block1_conv = nn.Conv2d(embed_dims // 8, embed_dims // 4, kernel_size=3, stride=1, padding=1, bias=False)
         self.block1_bn = nn.BatchNorm2d(embed_dims // 4)
 
-        self.block2_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.block2_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.block2_conv = nn.Conv2d(embed_dims // 4, embed_dims // 2, kernel_size=3, stride=1, padding=1, bias=False)
         self.block2_bn = nn.BatchNorm2d(embed_dims // 2)
 
-        self.block3_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.block3_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.block3_mp = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
         self.block3_conv = nn.Conv2d(embed_dims // 2, embed_dims // 1, kernel_size=3, stride=1, padding=1, bias=False)
         self.block3_bn = nn.BatchNorm2d(embed_dims // 1)
 
-        self.block4_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='torch')
+        self.block4_lif = MultiStepLIFNode(tau=2.0, detach_reset=True, backend='cupy')
         self.block4_mp = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
         self.block4_conv = nn.Conv2d(embed_dims, embed_dims, kernel_size=3, stride=1, padding=1, bias=False)
         self.block4_bn = nn.BatchNorm2d(embed_dims)
