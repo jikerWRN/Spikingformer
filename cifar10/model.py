@@ -233,8 +233,13 @@ class vit_snn(nn.Module):
 
 @register_model
 def Spikingformer(pretrained=False, **kwargs):
-    kwargs.pop('pretrained_cfg_overlay', None)
-    kwargs.pop('drop_block_rate', None)
+    allowed_kwargs = {
+        'img_size_h', 'img_size_w', 'patch_size', 'in_channels', 'num_classes',
+        'embed_dims', 'num_heads', 'mlp_ratios', 'qkv_bias', 'qk_scale',
+        'drop_rate', 'attn_drop_rate', 'drop_path_rate', 'norm_layer',
+        'depths', 'sr_ratios', 'T', 'pretrained_cfg',
+    }
+    kwargs = {k: v for k, v in kwargs.items() if k in allowed_kwargs}
     model = vit_snn(
         **kwargs
     )
