@@ -66,14 +66,16 @@ def save_best_checkpoint(model, optimizer, args, epoch, metric, output_dir, mode
     torch.save(save_state, os.path.join(output_dir, 'model_best.pth.tar'))
 
 
-try:
-    from apex import amp
-    from apex.parallel import DistributedDataParallel as ApexDDP
-    from apex.parallel import convert_syncbn_model
+# try:
+#     from apex import amp
+#     from apex.parallel import DistributedDataParallel as ApexDDP
+#     from apex.parallel import convert_syncbn_model
 
-    has_apex = True
-except ImportError:
-    has_apex = False
+#     has_apex = True
+# except ImportError:
+#     has_apex = False
+
+has_apex = False
 
 has_native_amp = False
 try:
@@ -82,12 +84,15 @@ try:
 except AttributeError:
     pass
 
-try:
-    import wandb
+# try:
+#     import wandb
 
-    has_wandb = True
-except ImportError:
-    has_wandb = False
+#     has_wandb = True
+# except ImportError:
+#     has_wandb = False
+
+import wandb
+has_wandb = True
 
 torch.backends.cudnn.benchmark = True
 _logger = logging.getLogger('train')
@@ -327,7 +332,7 @@ parser.add_argument('--use-multi-epochs-loader', action='store_true', default=Fa
                     help='use the multi-epochs-loader to save time at the beginning of every epoch')
 parser.add_argument('--torchscript', dest='torchscript', action='store_true',
                     help='convert model torchscript for inference')
-parser.add_argument('--log-wandb', action='store_true', default=False,
+parser.add_argument('--log-wandb', default=True,
                     help='log training and validation metrics to wandb')
 
 
