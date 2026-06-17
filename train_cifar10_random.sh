@@ -16,3 +16,14 @@ python train.py \
   -data-dir "$DATA_DIR" \
   --output "$OUTPUT_DIR" \
   --experiment "$EXPERIMENT"
+
+
+
+
+CUDA_VISIBLE_DEVICES=0 python cifar10/train.py -c cifar10/cifar10.yml --model-file model_4layers_random -data-dir /home/wangyufei/dataset --output /home/wangyufei/code/SNNTransformer/Spikingformer/output/train --experiment Spikingformer-4-384-random
+
+
+
+
+
+
