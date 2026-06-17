@@ -16,6 +16,7 @@ NVIDIA CUDA specific speedups adopted from NVIDIA Apex examples
 Hacked together by / Copyright 2020 Ross Wightman (https://github.com/rwightman)
 """
 import argparse
+import importlib
 import time
 import yaml
 import os
@@ -32,14 +33,37 @@ from torch.nn.parallel import DistributedDataParallel as NativeDDP
 
 from timm.data import create_dataset, resolve_data_config, Mixup, FastCollateMixup, AugMixDataset, create_loader
 # from loader import create_loader
-from timm.models import create_model, safe_model_name, resume_checkpoint, load_checkpoint, \
-    convert_splitbn_model, model_parameters
+from timm.models import create_model, safe_model_name, resume_checkpoint, load_checkpoint, model_parameters
+try:
+    from timm.layers import convert_splitbn_model
+except ImportError:
+    from timm.models.layers import convert_splitbn_model
 from timm.utils import *
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy, JsdCrossEntropy
 from timm.optim import create_optimizer_v2, optimizer_kwargs
 from timm.scheduler import create_scheduler
 from timm.utils import ApexScaler, NativeScaler
 
+
+def is_better_metric(metric, best_metric, decreasing=False):
+    if best_metric is None:
+        return True
+    return metric < best_metric if decreasing else metric > best_metric
+
+
+def save_best_checkpoint(model, optimizer, args, epoch, metric, output_dir, model_ema=None, loss_scaler=None):
+    save_state = {
+        'epoch': epoch,
+        'state_dict': unwrap_model(model).state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'args': args,
+        'metric': metric,
+    }
+    if model_ema is not None:
+        save_state['state_dict_ema'] = unwrap_model(model_ema.module).state_dict()
+    if loss_scaler is not None and hasattr(loss_scaler, 'state_dict'):
+        save_state['amp_scaler'] = loss_scaler.state_dict()
+    torch.save(save_state, os.path.join(output_dir, 'model_best.pth.tar'))
 
 
 try:
@@ -78,6 +102,8 @@ parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 # Model detail
 parser.add_argument('--model', default='vitsnn', type=str, metavar='MODEL',
                     help='Name of model to train (default: "countception"')
+parser.add_argument('--model-file', default='model', type=str, metavar='MODULE',
+                    help='Python model module to import before create_model, e.g. model or model_4layers_random')
 parser.add_argument('-T', '--time-step', type=int, default=4, metavar='time',
                     help='simulation time step of spiking neuron (default: 4)')
 parser.add_argument('-L', '--layer', type=int, default=4, metavar='layer',
@@ -372,7 +398,8 @@ def main():
 
 
 
-    import model
+    model_module_name = args.model_file[:-3] if args.model_file.endswith('.py') else args.model_file
+    importlib.import_module(model_module_name)
     model = create_model(
         'Spikingformer',
         pretrained=False,
@@ -593,20 +620,12 @@ def main():
     best_epoch = None
     saver = None
     output_dir = None
+    decreasing = True if eval_metric == 'loss' else False
     if args.rank == 0:
-        if args.experiment:
-            exp_name = args.experiment
-        else:
-            exp_name = '-'.join([
-                datetime.now().strftime("%Y%m%d-%H%M%S"),
-                safe_model_name(args.model),
-                str(data_config['input_size'][-1])
-            ])
+        model_file_name = os.path.splitext(os.path.basename(args.model_file))[0]
+        run_time = datetime.now().strftime("%Y%m%d-%H%M%S")
+        exp_name = f'{model_file_name}-{run_time}'
         output_dir = get_outdir(args.output if args.output else './output/train', exp_name)
-        decreasing = True if eval_metric == 'loss' else False
-        saver = CheckpointSaver(
-            model=model, optimizer=optimizer, args=args, model_ema=model_ema, amp_scaler=loss_scaler,
-            checkpoint_dir=output_dir, recovery_dir=output_dir, decreasing=decreasing, max_history=args.checkpoint_hist)
         with open(os.path.join(output_dir, 'args.yaml'), 'w') as f:
             f.write(args_text)
 
@@ -644,10 +663,14 @@ def main():
                     epoch, train_metrics, eval_metrics, os.path.join(output_dir, 'summary.csv'),
                     write_header=best_metric is None, log_wandb=args.log_wandb and has_wandb)
 
-            if saver is not None:
-                # save proper checkpoint with eval metric
+            if output_dir is not None:
                 save_metric = eval_metrics[eval_metric]
-                best_metric, best_epoch = saver.save_checkpoint(epoch, metric=save_metric)
+                if is_better_metric(save_metric, best_metric, decreasing=decreasing):
+                    best_metric = save_metric
+                    best_epoch = epoch
+                    save_best_checkpoint(
+                        model, optimizer, args, epoch, save_metric, output_dir,
+                        model_ema=model_ema, loss_scaler=loss_scaler)
                 _logger.info('*** Best metric: {0} (epoch {1})'.format(best_metric, best_epoch))
 
     except KeyboardInterrupt:

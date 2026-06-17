@@ -19,7 +19,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/cifar10"
 
-python eval_checkpoint.py \
+python cifar10/eval_checkpoint.py \
   --checkpoint "$CHECKPOINT" \
   --data-dir "$DATA_DIR" \
   --device "$DEVICE" \
