@@ -1,4 +1,5 @@
 import argparse
+import importlib
 from collections import OrderedDict
 from pathlib import Path
 
@@ -10,13 +11,13 @@ from timm.utils import accuracy
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
-import model as spikingformer_model
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate Spikingformer on CIFAR-10")
     parser.add_argument("--checkpoint", required=True, type=str, help="Path to .pth.tar checkpoint")
     parser.add_argument("--data-dir", required=True, type=str, help="CIFAR-10 root directory")
+    parser.add_argument("--model-file", default="model", type=str,
+                        help="Python model module to import, e.g. model or model_4layers_random")
     parser.add_argument("--config", default="cifar10.yml", type=str, help="Model/eval config YAML")
     parser.add_argument("--batch-size", default=None, type=int, help="Validation batch size")
     parser.add_argument("--workers", default=None, type=int, help="DataLoader workers")
@@ -47,8 +48,13 @@ def extract_state_dict(checkpoint):
     return state_dict
 
 
-def build_model(cfg):
-    return spikingformer_model.vit_snn(
+def import_model_module(model_file):
+    module_name = model_file[:-3] if model_file.endswith(".py") else model_file
+    return importlib.import_module(module_name)
+
+
+def build_model(cfg, model_module):
+    return model_module.vit_snn(
         drop_rate=0.0,
         drop_path_rate=0.2,
         img_size_h=cfg["img_size"],
@@ -123,7 +129,8 @@ def main():
     cfg = load_config(args.config)
     device = torch.device(args.device)
 
-    net = build_model(cfg).to(device)
+    model_module = import_model_module(args.model_file)
+    net = build_model(cfg, model_module).to(device)
     checkpoint = torch.load(Path(args.checkpoint), map_location=device, weights_only=False)
     state_dict = extract_state_dict(checkpoint)
     missing, unexpected = net.load_state_dict(state_dict, strict=False)
