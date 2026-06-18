@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <checkpoint.pth.tar> <cifar10_root> [model_file] [device] [extra args...]"
-  echo "Example: $0 ./checkpoints/model_best.pth.tar ./data model_4layers_random cuda:0 --download"
-  exit 1
-fi
-
-CHECKPOINT="$1"
-DATA_DIR="$2"
-MODEL_FILE="${3:-model}"
+MODEL_FILE="${1:-model_4layers_random}"
+DATA_DIR="${2:-/home/wangyufei/dataset}"
+CHECKPOINT="${3:-./output/train/model_4layers_random/model_best.pth.tar}"
 DEVICE="${4:-cuda:0}"
 
-shift 2
+if [ "$#" -gt 0 ]; then shift 1; fi
+if [ "$#" -gt 0 ]; then shift 1; fi
 if [ "$#" -gt 0 ]; then shift 1; fi
 if [ "$#" -gt 0 ]; then shift 1; fi
 
