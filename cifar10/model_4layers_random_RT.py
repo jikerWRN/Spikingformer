@@ -1,3 +1,7 @@
+"""
+最开始的版本，训练随机，和测试的时候固定的，导致测试的时候每次结果都不一样
+"""
+
 import torch
 import torch.nn as nn
 from spikingjelly.clock_driven.neuron import MultiStepParametricLIFNode, MultiStepLIFNode
@@ -342,15 +346,18 @@ class vit_snn(nn.Module):
         patch_embed = getattr(self, f"patch_embed")
 
         x, (H, W) = patch_embed(x)
-        rand_value = torch.rand(1).item()
-        if rand_value < 0.5:
+        if not self.training:
             active_blocks = 4
-        elif rand_value < 0.7:
-            active_blocks = 3
-        elif rand_value < 0.9:
-            active_blocks = 2
         else:
-            active_blocks = 1
+            rand_value = torch.rand(1).item()
+            if rand_value < 0.5:
+                active_blocks = 4
+            elif rand_value < 0.7:
+                active_blocks = 3
+            elif rand_value < 0.9:
+                active_blocks = 2
+            else:
+                active_blocks = 1
 
         for block_idx, blk in enumerate(block):
             if block_idx < active_blocks:
