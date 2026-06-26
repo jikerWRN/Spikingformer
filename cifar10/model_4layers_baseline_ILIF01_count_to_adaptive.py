@@ -29,6 +29,7 @@ class MultiSpike4(nn.Module):
         ema_momentum=0.001,
         max_change_ratio=0.05,
         selected_percentile=0.99,
+        max_quantile_samples=1000000,
     ):
         super().__init__()
         if upper_bound_method not in ("input", "bn"):
@@ -54,6 +55,9 @@ class MultiSpike4(nn.Module):
         self.ema_momentum = ema_momentum
         self.max_change_ratio = max_change_ratio
         self.selected_percentile = float(selected_percentile)
+        self.max_quantile_samples = int(max_quantile_samples)
+        if self.max_quantile_samples <= 0:
+            raise ValueError("max_quantile_samples must be positive")
         self.register_buffer("upper_bound_default", torch.tensor(float(default_upper_bound)), persistent=False)
 
         num_percentiles = int(self.percentile.numel())
@@ -80,10 +84,13 @@ class MultiSpike4(nn.Module):
             return grad_input, None
 
     def compute_upper_bound(self, x):
-        x = x.detach()
+        x = x.detach().reshape(-1)
         positive_x = x[x > 0]
         if positive_x.numel() == 0:
             return None
+        if positive_x.numel() > self.max_quantile_samples:
+            step = math.ceil(positive_x.numel() / self.max_quantile_samples)
+            positive_x = positive_x[::step][:self.max_quantile_samples]
         percentile = self.percentile.to(device=positive_x.device, dtype=positive_x.dtype)
         return torch.quantile(positive_x, percentile)
 
