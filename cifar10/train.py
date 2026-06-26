@@ -77,12 +77,14 @@ def save_best_checkpoint(model, optimizer, args, epoch, metric, output_dir, mode
 
 has_apex = False
 
+# has_native_amp = False
+# try:
+#     if getattr(torch.cuda.amp, 'autocast') is not None:
+#         has_native_amp = True
+# except AttributeError:
+#     pass
+
 has_native_amp = False
-try:
-    if getattr(torch.cuda.amp, 'autocast') is not None:
-        has_native_amp = True
-except AttributeError:
-    pass
 
 # try:
 #     import wandb
