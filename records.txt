@@ -1,0 +1,54 @@
+python cifar10/train.py                                                                                       (torch) 
+Traceback (most recent call last):
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/train.py", line 35, in <module>
+    from timm.models import create_model, safe_model_name, resume_checkpoint, load_checkpoint, \
+ImportError: cannot import name 'convert_splitbn_model' from 'timm.models' (/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/timm/models/__init__.py)
+
+
+
+Traceback (most recent call last):
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/train_count.py", line 997, in <module>
+    main()
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/train_count.py", line 791, in main
+    train_metrics = train_one_epoch(
+                    ^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/train_count.py", line 842, in train_one_epoch
+    output = model(input)
+             ^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 506, in forward
+    x = self.forward_features(x)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 499, in forward_features
+    x, (H, W) = patch_embed(x)
+                ^^^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 378, in forward
+    x = self.block3_lif(x).flatten(0, 1)
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/anaconda3/envs/torch/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 158, in forward
+    shared_upper_bound = self.qtrick.get_shared_upper_bound(x, bn)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 121, in get_shared_upper_bound
+    upper_bound = self.compute_upper_bound(x)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10/model_4layers_baseline_ILIF01_count.py", line 84, in compute_upper_bound
+    return torch.quantile(positive_x.detach(), self.percentile.to(device=positive_x.device, dtype=positive_x.dtype))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: quantile() input tensor is too large
