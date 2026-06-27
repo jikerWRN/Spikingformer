@@ -1,5 +1,5 @@
 epochs: 400
-time_step: 4
+time_step: 1
 dim: 384
 num_heads: 12
 patch_size: 4

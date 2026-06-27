@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-MODEL_FILE="${1:-model_4layers_baseline}"
+MODEL_FILE="${1:-model_4layers_baseline_ILIF01_count_test}"
 DATA_DIR="${2:-/home/wangyufei/dataset}"
-CHECKPOINT="${3:-/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline-20260617-124420/model_best.pth.tar}"
+CHECKPOINT="${3:-/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count-20260626-082919/model_best.pth.tar}"
 DEVICE="${4:-cuda:0}"
 
 if [ "$#" -gt 0 ]; then shift 1; fi
