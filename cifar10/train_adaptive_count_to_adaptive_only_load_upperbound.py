@@ -17,7 +17,10 @@ def load_initial_upper_bound_stats(model, checkpoint_path, device=None):
     if not base.os.path.exists(checkpoint_path):
         raise FileNotFoundError('Initial checkpoint not found: {}'.format(checkpoint_path))
 
-    checkpoint = base.torch.load(checkpoint_path, map_location='cpu')
+    # PyTorch 2.6 defaults to weights_only=True, but this trusted training
+    # checkpoint also stores argparse.Namespace in its metadata.
+    checkpoint = base.torch.load(
+        checkpoint_path, map_location='cpu', weights_only=False)
     if isinstance(checkpoint, dict):
         for container_key in ('state_dict_ema', 'state_dict', 'net'):
             if container_key in checkpoint:
