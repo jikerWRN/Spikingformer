@@ -62,6 +62,7 @@ class MultiSpike4(nn.Module):
 
         num_percentiles = int(self.percentile.numel())
         default_stats = torch.full((num_percentiles,), float(default_upper_bound), dtype=torch.float32)
+        self.register_buffer("checkpoint_upper_bound_mean", default_stats.clone())
         self.register_buffer("upper_bound_mean", default_stats.clone())
         self.register_buffer("upper_bound_count", torch.tensor(0.0))
         self.register_buffer("upper_bound_raw_last", default_stats.clone())
@@ -104,7 +105,7 @@ class MultiSpike4(nn.Module):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
             grad_input[input < 0] = 0
-            grad_input[input > 1.0] = 0
+            grad_input[input > upper_bound] = 0
             return grad_input, None
 
     def compute_upper_bound(self, x):
