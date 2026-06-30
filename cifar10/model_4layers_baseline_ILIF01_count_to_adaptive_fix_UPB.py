@@ -105,7 +105,7 @@ class MultiSpike4(nn.Module):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
             grad_input[input < 0] = 0
-            grad_input[input > 1.0] = 0
+            grad_input[input > upper_bound] = 0
             return grad_input, None
 
     def compute_upper_bound(self, x):
