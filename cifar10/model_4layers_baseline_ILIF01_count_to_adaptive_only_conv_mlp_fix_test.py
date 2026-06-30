@@ -182,7 +182,12 @@ class mem_update(nn.Module):
         mem_old = 0
         time_window = x.shape[0]
         shared_upper_bound = self.qtrick.get_shared_upper_bound(x, bn)
-        print("--------{}--------".format(shared_upper_bound))
+        print("--------{}--------".format(shared_upper_bound.item()))
+        
+        print(self.qtrick.upper_bound_mean.device, self.qtrick.upper_bound_mean)
+        print(self.qtrick.checkpoint_upper_bound_mean.device, self.qtrick.checkpoint_upper_bound_mean)
+        print(self.qtrick.upper_bound_mean.data_ptr())
+        print(self.qtrick.checkpoint_upper_bound_mean.data_ptr())
         for i in range(time_window):
             if i >= 1:
                 mem = (mem_old - spike.detach()) * decay + x[i]
