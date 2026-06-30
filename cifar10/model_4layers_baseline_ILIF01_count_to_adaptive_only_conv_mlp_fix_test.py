@@ -187,7 +187,6 @@ class mem_update(nn.Module):
         print(self.qtrick.checkpoint_upper_bound_mean.device, self.qtrick.checkpoint_upper_bound_mean)
         print(self.qtrick.upper_bound_mean.data_ptr())
         print(self.qtrick.checkpoint_upper_bound_mean.data_ptr())
-
         for i in range(time_window):
             if i >= 1:
                 mem = (mem_old - spike.detach()) * decay + x[i]
