@@ -69,6 +69,30 @@ class MultiSpike4(nn.Module):
         self.register_buffer("upper_bound_raw_max", torch.full((num_percentiles,), float("-inf"), dtype=torch.float32))
         self.register_buffer("upper_bound_raw_sum", torch.zeros(num_percentiles, dtype=torch.float32))
 
+    def _load_from_state_dict(
+        self,
+        state_dict,
+        prefix,
+        local_metadata,
+        strict,
+        missing_keys,
+        unexpected_keys,
+        error_msgs,
+    ):
+        checkpoint_mean_key = prefix + "checkpoint_upper_bound_mean"
+        upper_bound_mean_key = prefix + "upper_bound_mean"
+        super()._load_from_state_dict(
+            state_dict,
+            prefix,
+            local_metadata,
+            strict,
+            missing_keys,
+            unexpected_keys,
+            error_msgs,
+        )
+        if checkpoint_mean_key not in state_dict and upper_bound_mean_key in state_dict:
+            self.checkpoint_upper_bound_mean.copy_(self.upper_bound_mean)
+
     class quant4(torch.autograd.Function):
         @staticmethod
         def forward(ctx, input, upper_bound):
@@ -145,7 +169,7 @@ class MultiSpike4(nn.Module):
                 )
             )
         percentile_idx = torch.nonzero(matches, as_tuple=False)[0, 0]
-        upper_bound = self.upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
+        upper_bound = self.checkpoint_upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
         return upper_bound.to(device=x.device, dtype=x.dtype)
 
     def forward(self, x, upper_bound=None, bn=None):
