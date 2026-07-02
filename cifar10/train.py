@@ -419,7 +419,7 @@ def main():
         drop_block_rate=None,
         img_size_h=args.img_size, img_size_w=args.img_size,
         patch_size=args.patch_size, embed_dims=args.dim, num_heads=args.num_heads, mlp_ratios=args.mlp_ratio,
-        in_channels=3, num_classes=args.num_classes, qkv_bias=False,
+        in_channels=3, num_classes=args.num_classes, qkv_bias=False,T=args.time_step,
         depths=args.depths, sr_ratios=1,
     )
 
