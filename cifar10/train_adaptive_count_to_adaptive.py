@@ -469,6 +469,11 @@ def main():
     if args.log_wandb:
         if has_wandb:
             wandb.init(project=args.experiment, config=args)
+            wandb.define_metric('epoch')
+            wandb.define_metric('train/update')
+            wandb.define_metric('train/*', step_metric='train/update')
+            wandb.define_metric('eval/*', step_metric='train/update')
+            wandb.define_metric('upper_bound/*', step_metric='train/update')
         else:
             _logger.warning("You've requested to log metrics to wandb but package not found. "
                             "Metrics not being logged to wandb, try `pip install wandb`")
@@ -749,9 +754,11 @@ def main():
             f.write(args_text)
 
     eval_state = {'last_metrics': None}
+    train_updates_per_epoch = len(loader_train)
 
     def run_eval(epoch, update=None, train_metrics=None, log_suffix=''):
         nonlocal best_metric, best_epoch
+        wandb_step = update if update is not None else (epoch + 1) * train_updates_per_epoch
 
         if args.distributed and args.dist_bn in ('broadcast', 'reduce'):
             if args.local_rank == 0:
@@ -772,7 +779,7 @@ def main():
 
         if output_dir is not None:
             update_summary(
-                update if update is not None else epoch,
+                wandb_step,
                 train_metrics or OrderedDict([('loss', None)]),
                 eval_metrics,
                 os.path.join(output_dir, 'summary.csv'),
@@ -791,13 +798,12 @@ def main():
         if args.log_wandb and has_wandb and args.rank == 0:
             wandb_data = {f'eval/{k}': v for k, v in eval_metrics.items()}
             wandb_data['epoch'] = epoch
-            if update is not None:
-                wandb_data['train/update'] = update
+            wandb_data['train/update'] = wandb_step
             if train_metrics is not None:
                 for k, v in train_metrics.items():
                     if v is not None:
                         wandb_data[f'train/{k}'] = v
-            wandb.log(wandb_data, step=update)
+            wandb.log(wandb_data, step=wandb_step)
 
         return eval_metrics
 
