@@ -138,6 +138,7 @@ class MultiSpike4(nn.Module):
         else:
             upper_bound = upper_bound.to(device=x.device, dtype=x.dtype)
 
+        print("--------------{}-----------------".format(self.upper_bound_mean))
         return self.quant4.apply(x, upper_bound)
 
         
@@ -372,7 +373,8 @@ class SpikingTokenizer(nn.Module):
     def forward(self, x):
         T, B, C, H, W = x.shape
 
-        print("------{}-------".format(T))
+        print("________________________")
+        # print("------{}-------".format(T))
         x = self.block0_conv(x.flatten(0, 1))
         x = self.block0_bn(x).reshape(T, B, -1, H, W)
 
