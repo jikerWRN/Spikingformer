@@ -18,10 +18,12 @@ from timm.utils import accuracy
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test adaptive Spikingformer on CIFAR-10")
-    parser.add_argument("--checkpoint", required=True, help="Path to model_best.pth.tar")
-    parser.add_argument("--data-dir", default=None, help="CIFAR-10 root (overrides the config)")
+    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-224147/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+
+    parser.add_argument("--data-dir", default="/home/wangyufei/dataset", help="CIFAR-10 root (overrides the config)")
     parser.add_argument("--config", default=str(Path(__file__).with_name("cifar10.yml")))
-    parser.add_argument("--model-file", default=None,
+    parser.add_argument("--model-file", default="model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back",
                         help="Model module/path; defaults to the value saved in the checkpoint")
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--workers", type=int, default=None)
