@@ -205,6 +205,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
             )
         percentile_idx = torch.nonzero(matches, as_tuple=False)[0, 0]
         upper_bound = self.checkpoint_upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
+
+        print("-----------{}-----------".format(self.checkpoint_upper_bound_mean))
         return upper_bound.to(device=x.device, dtype=x.dtype)
 
     def spike_quantize(self, x, upper_bound=None, bn=None):
@@ -669,6 +671,7 @@ class vit_snn(nn.Module):
         return x.flatten(3).mean(3)
 
     def forward(self, x):
+        print("-----------------------------")
         x = (x.unsqueeze(0)).repeat(self.T, 1, 1, 1, 1)
         x = self.forward_features(x)
         x = self.head(x.mean(0))

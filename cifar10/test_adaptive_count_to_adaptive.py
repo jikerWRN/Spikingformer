@@ -18,13 +18,22 @@ from timm.utils import accuracy
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test adaptive Spikingformer on CIFAR-10")
-    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-224147/model_best.pth.tar", help="Path to model_best.pth.tar")
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-224147/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-130740/model_best.pth.tar", help="Path to model_best.pth.tar")
+    parser.add_argument("--model-file", default="model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back_test",
+                    help="Model module/path; defaults to the value saved in the checkpoint")
+    
+    parser.add_argument("--spike-percentile", default=[0.7,0.8,0.9,0.99], nargs="+", 
+                    help="Positive activation percentiles used by the adaptive spike upper bound")
+    parser.add_argument("--spike-selected-percentile", default=0.9,
+                        help="Selected percentile used as the adaptive spike upper bound")
+
+
 
 
     parser.add_argument("--data-dir", default="/home/wangyufei/dataset", help="CIFAR-10 root (overrides the config)")
     parser.add_argument("--config", default=str(Path(__file__).with_name("cifar10.yml")))
-    parser.add_argument("--model-file", default="model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back",
-                        help="Model module/path; defaults to the value saved in the checkpoint")
     parser.add_argument("--batch-size", type=int, default=None)
     parser.add_argument("--workers", type=int, default=None)
     parser.add_argument("--device", default="cuda:0")
@@ -32,10 +41,6 @@ def parse_args():
     parser.add_argument("--use-ema", action="store_true", help="Load state_dict_ema when available")
     parser.add_argument("--strict", action="store_true", help="Require an exact checkpoint/model match")
     parser.add_argument("--log-interval", type=int, default=50)
-    parser.add_argument("--spike-percentile", type=float, nargs="+", default=None,
-                        help="Positive activation percentiles used by the adaptive spike upper bound")
-    parser.add_argument("--spike-selected-percentile", type=float, default=None,
-                        help="Selected percentile used as the adaptive spike upper bound")
     return parser.parse_args()
 
 
