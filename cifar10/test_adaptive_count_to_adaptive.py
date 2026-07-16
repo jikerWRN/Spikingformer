@@ -20,14 +20,127 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Test adaptive Spikingformer on CIFAR-10")
     # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-224147/model_best.pth.tar", help="Path to model_best.pth.tar")
 
-    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/output/train/model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back-20260702-130740/model_best.pth.tar", help="Path to model_best.pth.tar")
-    parser.add_argument("--model-file", default="model_4layers_baseline_ILIF01_count_to_adaptive_fix_UPB_sj_back_test",
-                    help="Model module/path; defaults to the value saved in the checkpoint")
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_add_internal-20260703-084945/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_add_internal_test",
+    #                 help="Model module/path; defaults to the value saved in the checkpoint")
     
-    parser.add_argument("--spike-percentile", default=[0.7,0.8,0.9,0.99], nargs="+", 
-                    help="Positive activation percentiles used by the adaptive spike upper bound")
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_add_internal_kernel3-20260703-085014/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_add_internal_kernel3_test",
+    #                 help="Model module/path; defaults to the value saved in the checkpoint")
+    
+
+# --------------------------------------------------------------------------------------------
+
+    # parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_fix_UPB_add_internal_kernel3_noatten_test",
+    #                 help="Model module/path; defaults to the value saved in the checkpoint_test")
+
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_fix_UPB_add_internal_kernel3_noatten-20260705-061932/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # -----------------0.99---------------
+    # Test [   0/157]  loss 0.4129  acc@1 93.75  acc@5 98.44
+    # Test [  50/157]  loss 0.3514  acc@1 92.19  acc@5 100.00
+    # Test [ 100/157]  loss 0.3945  acc@1 93.75  acc@5 98.44
+    # Test [ 150/157]  loss 0.3478  acc@1 96.88  acc@5 100.00
+    # Checkpoint epoch: 408
+    # Loss: 0.3560  Acc@1: 95.0100  Acc@5: 99.7000
+
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_fix_UPB_add_internal_kernel3_noatten-20260706-015257/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+
+    # -----------------0.99---------------
+    # Test [   0/157]  loss 0.4116  acc@1 90.62  acc@5 100.00
+    # Test [  50/157]  loss 0.2743  acc@1 98.44  acc@5 100.00
+    # Test [ 100/157]  loss 0.3917  acc@1 92.19  acc@5 98.44
+    # Test [ 150/157]  loss 0.3252  acc@1 96.88  acc@5 100.00
+    # Checkpoint epoch: 396
+    # Loss: 0.3460  Acc@1: 95.0000  Acc@5: 99.5700
+
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_fix_UPB_add_internal_kernel3_noatten-20260706-151158/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # -----------------0.99---------------
+    # Test [   0/157]  loss 0.3723  acc@1 92.19  acc@5 100.00
+    # Test [  50/157]  loss 0.3382  acc@1 96.88  acc@5 100.00
+    # Test [ 100/157]  loss 0.3080  acc@1 96.88  acc@5 100.00
+    # Test [ 150/157]  loss 0.2951  acc@1 98.44  acc@5 98.44
+    # Checkpoint epoch: 376
+    # Loss: 0.3500  Acc@1: 95.0500  Acc@5: 99.6900
+
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_fix_UPB_add_internal_kernel3_noatten-20260706-151310/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # -----------------0.99---------------
+    # Test [   0/157]  loss 0.3663  acc@1 93.75  acc@5 100.00
+    # Test [  50/157]  loss 0.3115  acc@1 96.88  acc@5 100.00
+    # Test [ 100/157]  loss 0.3658  acc@1 95.31  acc@5 100.00
+    # Test [ 150/157]  loss 0.2711  acc@1 96.88  acc@5 100.00
+    # Checkpoint epoch: 400
+    # Loss: 0.3314  Acc@1: 95.0300  Acc@5: 99.6900
+
+
+# --------------------------------------------------------------------------------------------
+
+    # parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3",
+    #                 help="Model module/path; defaults to the value saved in the checkpoint_test")
+    
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3-20260704-142823/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+
+
+# --------------------------------------------------------------------------------------------
+
+    # parser.add_argument("--model-file", default="B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_count",
+    #                 help="Model module/path; defaults to the value saved in the checkpoint_test")
+    
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_count-20260708-022831/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # Checkpoint epoch: 398
+    # Loss: 0.4178  Acc@1: 93.7700  Acc@5: 99.6600
+
+    parser.add_argument("--model-file", default="B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten_test",
+                    help="Model module/path; defaults to the value saved in the checkpoint_test")
+
+# *****************************************
+
+    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten-20260708-022804/model_best.pth.tar", help="Path to model_best.pth.tar")
+
     parser.add_argument("--spike-selected-percentile", default=0.9,
-                        help="Selected percentile used as the adaptive spike upper bound")
+                        help="Selected percentile used as the adaptive spike upper bound"
+                        )
+    # Checkpoint epoch: 374
+    # Loss: 0.4037  Acc@1: 94.4100  Acc@5: 99.5900
+
+# *****************************************
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten-20260708-152953/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # parser.add_argument("--spike-selected-percentile", default=0.7,
+    #                     help="Selected percentile used as the adaptive spike upper bound"
+    #                     )
+
+    # Checkpoint epoch: 394
+    # Loss: 0.3673  Acc@1: 94.3500  Acc@5: 99.6600
+
+# *****************************************
+
+    # parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten-20260708-153032/model_best.pth.tar", help="Path to model_best.pth.tar")
+
+    # parser.add_argument("--spike-selected-percentile", default=0.8,
+    #                     help="Selected percentile used as the adaptive spike upper bound"
+    #                     )
+
+# Checkpoint epoch: 389
+# Loss: 0.3342  Acc@1: 94.3200  Acc@5: 99.5600
+
+# *****************************************
+
+
+    parser.add_argument("--spike-percentile", default=[0.7,0.8,0.9,0.99], nargs="+", 
+                help="Positive activation percentiles used by the adaptive spike upper bound")
 
 
 

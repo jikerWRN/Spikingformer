@@ -3,3 +3,7 @@ output/
 output/train/
 wandb/
 cifar10/__pycache__/
+A_output/
+A_output_test/
+B_output/
+Test_output/
