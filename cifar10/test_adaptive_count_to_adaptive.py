@@ -101,16 +101,16 @@ def parse_args():
     # Checkpoint epoch: 398
     # Loss: 0.4178  Acc@1: 93.7700  Acc@5: 99.6600
 
-    parser.add_argument("--model-file", default="B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten_test",
-                    help="Model module/path; defaults to the value saved in the checkpoint_test")
+#     parser.add_argument("--model-file", default="B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten_test",
+#                     help="Model module/path; defaults to the value saved in the checkpoint_test")
 
-# *****************************************
+# # *****************************************
 
-    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten-20260708-022804/model_best.pth.tar", help="Path to model_best.pth.tar")
+#     parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/B_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_noatten-20260708-022804/model_best.pth.tar", help="Path to model_best.pth.tar")
 
-    parser.add_argument("--spike-selected-percentile", default=0.9,
-                        help="Selected percentile used as the adaptive spike upper bound"
-                        )
+#     parser.add_argument("--spike-selected-percentile", default=0.9,
+#                         help="Selected percentile used as the adaptive spike upper bound"
+#                         )
     # Checkpoint epoch: 374
     # Loss: 0.4037  Acc@1: 94.4100  Acc@5: 99.5900
 
@@ -138,6 +138,18 @@ def parse_args():
 
 # *****************************************
 
+
+    parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max",
+                    help="Model module/path; defaults to the value saved in the checkpoint_test")
+
+# *****************************************
+
+    parser.add_argument("--checkpoint", default="//home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max-20260707-020417/model_best.pth.tar")
+
+    parser.add_argument("--spike-selected-percentile", default=0.9,
+                        help="Selected percentile used as the adaptive spike upper bound"
+                        )
+    
 
     parser.add_argument("--spike-percentile", default=[0.7,0.8,0.9,0.99], nargs="+", 
                 help="Positive activation percentiles used by the adaptive spike upper bound")
