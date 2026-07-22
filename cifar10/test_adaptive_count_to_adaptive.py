@@ -139,17 +139,37 @@ def parse_args():
 # *****************************************
 
 
-    parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max",
+#     parser.add_argument("--model-file", default="A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max",
+#                     help="Model module/path; defaults to the value saved in the checkpoint_test")
+
+# # *****************************************
+
+#     parser.add_argument("--checkpoint", default="//home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max-20260707-020417/model_best.pth.tar")
+
+#     parser.add_argument("--spike-selected-percentile", default=0.9,
+#                         help="Selected percentile used as the adaptive spike upper bound"
+#                         )
+    
+
+# # *****************************************
+
+    parser.add_argument("--model-file", default="D_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_kernel3",
                     help="Model module/path; defaults to the value saved in the checkpoint_test")
 
 # *****************************************
 
-    parser.add_argument("--checkpoint", default="//home/wangyufei/code/SNNTransformer/Spikingformer/A_output/train/A_model_4layers_baseline_ILIF01_count_to_adaptive_sj_back_online_add_internal_kernel3_count_mem_del_max-20260707-020417/model_best.pth.tar")
+    parser.add_argument("--checkpoint", default="/home/wangyufei/code/SNNTransformer/Spikingformer/B_output/train/D_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_kernel3-20260720-144007/model_best.pth.tar")
 
     parser.add_argument("--spike-selected-percentile", default=0.9,
                         help="Selected percentile used as the adaptive spike upper bound"
                         )
-    
+
+
+
+
+
+
+
 
     parser.add_argument("--spike-percentile", default=[0.7,0.8,0.9,0.99], nargs="+", 
                 help="Positive activation percentiles used by the adaptive spike upper bound")
