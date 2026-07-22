@@ -321,8 +321,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
                 }
 
         os.makedirs(TENSOR_DISTRIBUTION_DIR, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2)
+        # with open(output_path, "w", encoding="utf-8") as f:
+        #     json.dump(payload, f, indent=2)
         self._save_state_distribution_plot(
             plot_path,
             name,
