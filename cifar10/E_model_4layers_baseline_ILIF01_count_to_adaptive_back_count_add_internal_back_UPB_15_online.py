@@ -33,7 +33,7 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
             grad_input[input < 0] = 0
-            grad_input[input > 6.0] = 0
+            grad_input[input > 1.5 * upper_bound] = 0
             return grad_input, None
 
     def __init__(

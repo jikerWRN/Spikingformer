@@ -420,7 +420,6 @@ def collect_upper_bound_stats(model):
     stats = OrderedDict()
     layer_idx = 0
     required_attrs = (
-        'percentile',
         'upper_bound_count',
         'upper_bound_raw_last',
         'upper_bound_raw_min',
@@ -436,14 +435,18 @@ def collect_upper_bound_stats(model):
         if count <= 0:
             continue
 
-        percentile = module.percentile.reshape(-1)
-        target = torch.tensor(0.99, device=percentile.device, dtype=percentile.dtype)
-        matches = torch.isclose(percentile, target, rtol=1e-6, atol=1e-8)
-        if not torch.any(matches):
-            raise ValueError('P99 must be included in --spike-percentile for upper_bound logging')
-        stat_idx = torch.nonzero(matches, as_tuple=False)[0, 0].item()
+        if hasattr(module, 'percentile') and hasattr(module, 'selected_percentile'):
+            percentile = module.percentile.reshape(-1)
+            selected = torch.tensor(module.selected_percentile, device=percentile.device, dtype=percentile.dtype)
+            matches = torch.isclose(percentile, selected, rtol=1e-6, atol=1e-8)
+            stat_idx = torch.nonzero(matches, as_tuple=False)[0, 0].item() if torch.any(matches) else -1
+            percentile_value = percentile[stat_idx].item()
+        else:
+            stat_idx = -1
+            percentile_value = None
 
-        prefix = 'upper_bound/{:02d}_{}_p99'.format(layer_idx, module_name.replace('.', '_'))
+        pct_tag = 'p{:g}'.format(percentile_value * 100.0) if percentile_value is not None else 'last'
+        prefix = 'upper_bound/{:02d}_{}_{}'.format(layer_idx, module_name.replace('.', '_'), pct_tag)
         stats[prefix + '/raw_last'] = module.upper_bound_raw_last.reshape(-1)[stat_idx].item()
         stats[prefix + '/raw_min'] = module.upper_bound_raw_min.reshape(-1)[stat_idx].item()
         stats[prefix + '/raw_max'] = module.upper_bound_raw_max.reshape(-1)[stat_idx].item()
@@ -463,10 +466,9 @@ def main():
     if args.resume and args.initial_checkpoint:
         raise ValueError('--resume and --initial-checkpoint cannot be used together')
 
-    model_file_name = os.path.splitext(os.path.basename(args.model_file))[0]
     if args.log_wandb:
         if has_wandb:
-            wandb.init(project=args.experiment, name=model_file_name, config=args)
+            wandb.init(project=args.experiment, config=args)
             wandb.define_metric('epoch')
             wandb.define_metric('train/update')
             wandb.define_metric('train/*', step_metric='train/update')
@@ -744,6 +746,7 @@ def main():
     output_dir = None
     decreasing = True if eval_metric == 'loss' else False
     if args.rank == 0:
+        model_file_name = os.path.splitext(os.path.basename(args.model_file))[0]
         run_time = datetime.now().strftime("%Y%m%d-%H%M%S")
         exp_name = f'{model_file_name}-{run_time}'
         output_dir = get_outdir(args.output if args.output else './output/train', exp_name)

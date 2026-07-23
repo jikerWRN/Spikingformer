@@ -283,13 +283,24 @@ class mem_update(nn.Module):
 
 
 class MS_Conv(nn.Module):
-    def __init__(self, in_features, hidden_features=None, out_features=None, drop=0., spike_percentile=(0.7, 0.8, 0.9, 0.99)):
+    def __init__(
+        self,
+        in_features,
+        hidden_features=None,
+        out_features=None,
+        drop=0.,
+        spike_percentile=(0.7, 0.8, 0.9, 0.99),
+        spike_selected_percentile=0.99,
+    ):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
-        self.mlp1_lif = mem_update(spike_percentile=spike_percentile)
-        self.mlp1_conv = nn.Conv2d(in_features, hidden_features, kernel_size=3, stride=1, padding=1, bias=False)
-        self.mlp1_bn = nn.BatchNorm2d(hidden_features)
+        self.internal_lif = mem_update(
+            spike_percentile=spike_percentile,
+            spike_selected_percentile=spike_selected_percentile,
+        )
+        self.internal_conv = nn.Conv2d(in_features, hidden_features, kernel_size=3, stride=1, padding=1, bias=False)
+        self.internal_bn = nn.BatchNorm2d(hidden_features)
 
         self.c_hidden = hidden_features
         self.c_output = out_features
@@ -297,9 +308,9 @@ class MS_Conv(nn.Module):
     def forward(self, x):
         T, B, C, H, W = x.shape
 
-        x = self.mlp1_lif(x)
-        x = self.mlp1_conv(x.flatten(0, 1))
-        x = self.mlp1_bn(x).reshape(T, B, self.c_hidden, H, W)
+        x = self.internal_lif(x)
+        x = self.internal_conv(x.flatten(0, 1))
+        x = self.internal_bn(x).reshape(T, B, self.c_hidden, H, W)
 
         return x
     
@@ -467,8 +478,16 @@ class SpikingTransformer(nn.Module):
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.conv1 = MS_Conv(dim)
-        self.conv2 = MS_Conv(dim)
+        self.conv1 = MS_Conv(
+            dim,
+            spike_percentile=spike_percentile,
+            spike_selected_percentile=spike_selected_percentile,
+        )
+        self.conv2 = MS_Conv(
+            dim,
+            spike_percentile=spike_percentile,
+            spike_selected_percentile=spike_selected_percentile,
+        )
         self.mlp = MLP(
             in_features=dim,
             hidden_features=mlp_hidden_dim,

@@ -33,7 +33,7 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
             grad_input[input < 0] = 0
-            grad_input[input > 6.0] = 0
+            grad_input[input > upper_bound] = 0
             return grad_input, None
 
     def __init__(
@@ -220,8 +220,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
             upper_bound = upper_bound.to(device=x.device, dtype=x.dtype)
         # Keep the custom 0 / upper_bound forward amplitude while restoring
         # SpikingJelly's original surrogate-gradient backward behavior.
-        # return upper_bound * self.surrogate_function(x - upper_bound * 0.5)
-        return self.QuantUpperBoundSpike.apply(x, upper_bound)
+        return upper_bound * self.surrogate_function(x - upper_bound * 0.5)
+        # return self.QuantUpperBoundSpike.apply(x, upper_bound)
 
     def _init_state_tensor(self, x):
         v = getattr(self, "v", 0.0)
