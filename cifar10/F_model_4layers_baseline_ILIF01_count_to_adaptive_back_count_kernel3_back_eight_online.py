@@ -32,8 +32,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
         def backward(ctx, grad_output):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
-            grad_input[input < 0.0] = 0
-            grad_input[input > 1.0] = 0
+            grad_input[input < 0] = 0
+            grad_input[input > 8.0] = 0
             return grad_input, None
 
     def __init__(
@@ -281,7 +281,7 @@ class mem_update(nn.Module):
     def forward(self, x, bn=None):
         return self.qtrick(x, bn=bn)
 
-
+    
 class MLP(nn.Module):
     def __init__(
         self,

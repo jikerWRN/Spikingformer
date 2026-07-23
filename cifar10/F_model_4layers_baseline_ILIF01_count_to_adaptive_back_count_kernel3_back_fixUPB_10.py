@@ -32,8 +32,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
         def backward(ctx, grad_output):
             input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
-            grad_input[input < 0.0] = 0
-            grad_input[input > 2.0] = 0
+            grad_input[input < 0] = 0
+            grad_input[input > upper_bound] = 0
             return grad_input, None
 
     def __init__(
@@ -208,8 +208,8 @@ class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
                 )
             )
         percentile_idx = torch.nonzero(matches, as_tuple=False)[0, 0]
-        # upper_bound = self.checkpoint_upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
-        upper_bound = self.upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
+        upper_bound = self.checkpoint_upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
+        # upper_bound = self.upper_bound_mean.reshape(-1)[percentile_idx].clamp_min(1e-6)
         return upper_bound.to(device=x.device, dtype=x.dtype)
         # return self.upper_bound_default.to(device=x.device, dtype=x.dtype)
 
