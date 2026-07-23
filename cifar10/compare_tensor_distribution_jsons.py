@@ -9,16 +9,16 @@ import matplotlib.pyplot as plt
 
 
 DEFAULT_DIR_A = Path(
-    r"C:\Users\wangy\Desktop\code\SNNTransformer\Spikingformer\cifar10"
-    r"\C_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_tensor_distributon"
+    r"/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10"
+    r"/D_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_kernel3_tensor_distributon"
 )
 DEFAULT_DIR_B = Path(
-    r"C:\Users\wangy\Desktop\code\SNNTransformer\Spikingformer\cifar10"
-    r"\D_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_kernel3_tensor_distributon"
+    r"/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10"
+    r"/D_model_4layers_baseline_ILIF01_count_to_adaptive_back_count_add_internal_kernel3_tensor_distributon"
 )
 DEFAULT_OUTPUT_DIR = Path(
-    r"C:\Users\wangy\Desktop\code\SNNTransformer\Spikingformer\cifar10"
-    r"\C_model_count_vs_model_count_kernel3_tensor_distribution_json_compare"
+    r"/home/wangyufei/code/SNNTransformer/Spikingformer/cifar10"
+    r"/C_kernel3_vs_add_internel_kernel3_tensor_distribution_json_compare"
 )
 
 
@@ -29,8 +29,8 @@ def parse_args():
     parser.add_argument("--dir-a", type=Path, default=DEFAULT_DIR_A, help="First JSON folder.")
     parser.add_argument("--dir-b", type=Path, default=DEFAULT_DIR_B, help="Second JSON folder.")
     parser.add_argument("--out-dir", type=Path, default=DEFAULT_OUTPUT_DIR, help="Output folder.")
-    parser.add_argument("--label-a", default="count", help="Legend label for dir-a.")
-    parser.add_argument("--label-b", default="kernel3", help="Legend label for dir-b.")
+    parser.add_argument("--label-a", default="kernel3", help="Legend label for dir-a.")
+    parser.add_argument("--label-b", default="add_internal_kernel3", help="Legend label for dir-b.")
     parser.add_argument("--dpi", type=int, default=180, help="Output image DPI.")
     parser.add_argument(
         "--raw-counts",
