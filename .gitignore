@@ -6,4 +6,6 @@ cifar10/__pycache__/
 A_output/
 A_output_test/
 B_output/
+E_output/
+*_output/
 Test_output/

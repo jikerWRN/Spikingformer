@@ -24,17 +24,17 @@ decay = 0.25
 class AdaptiveMultiStepLIFNode(MultiStepLIFNode):
     class QuantUpperBoundSpike(torch.autograd.Function):
         @staticmethod
-        def forward(ctx, input, upper_bound, checkpoint_upper_bound):
-            ctx.save_for_backward(input, upper_bound, checkpoint_upper_bound)
+        def forward(ctx, input, upper_bound):
+            ctx.save_for_backward(input, upper_bound)
             return torch.where(input >= upper_bound * 0.5, upper_bound.to(input.dtype), torch.zeros_like(input))
 
         @staticmethod
         def backward(ctx, grad_output):
-            input, upper_bound, checkpoint_upper_bound = ctx.saved_tensors
+            input, upper_bound = ctx.saved_tensors
             grad_input = grad_output.clone()
             grad_input[input < 0] = 0
-            grad_input[input > 2.0 * checkpoint_upper_bound] = 0
-            return grad_input, None, None
+            grad_input[input > 8.0] = 0
+            return grad_input, None
 
     def __init__(
         self,
